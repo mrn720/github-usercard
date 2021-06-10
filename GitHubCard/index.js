@@ -1,8 +1,14 @@
+import axios from 'axios'
+
 /*
   STEP 1: using axios, send a GET request to the following URL
     (replacing the placeholder with your Github name):
     https://api.github.com/users/<your name>
 */
+
+axios.get('https://api.github.com/users/mrn720')
+.then(res => console.log(res))
+.catch(err => console.log(err, 'Oh noooo'))
 
 /*
   STEP 2: Inspect and study the data coming back, this is YOUR
@@ -12,10 +18,68 @@
     Skip to STEP 3.
 */
 
+function githubCardMaker(axiosData) {
+  const cardDiv = document.createElement('div')
+  cardDiv.classList.add('card')
+
+  const githubImg = document.createElement('img')
+  cardDiv.appendChild(githubImg)
+  githubImg.src = `${axiosData.avatar_url}`
+
+  const infoDiv = document.createElement('div')
+  cardDiv.appendChild(infoDiv)
+  infoDiv.classList.add('card-info')
+
+  const name = document.createElement('h3')
+  name.classList.add('name')
+  infoDiv.appendChild(name)
+  name.textContent = `${axiosData.name}`
+
+  const userName = document.createElement('p')
+  userName.classList.add('username')
+  infoDiv.appendChild(userName)
+  userName.textContent = `${axiosData.login}`
+
+  const location = document.createElement('p')
+  infoDiv.appendChild(location)
+  location.textContent = `Location: ${axiosData.location}`
+
+  const profile = document.createElement('p')
+  infoDiv.appendChild(profile)
+
+  const userLink = document.createElement('a')
+  profile.appendChild(userLink)
+  userLink.href = `${axiosData.html_url}`
+  userLink.textContent = `URL: ${axiosData.html_url}`
+
+  const followers = document.createElement('p')
+  infoDiv.appendChild(followers)
+  followers.textContent = `Followers: ${axiosData.followers}`
+
+  const following = document.createElement('p')
+  infoDiv.appendChild(following)
+  following.textContent = `Following: ${axiosData.following}`
+
+  const bio = document.createElement('p')
+  infoDiv.appendChild(bio)
+  bio.textContent = `Bio: ${axiosData.bio}`
+
+  return cardDiv
+}
+
 /*
   STEP 4: Pass the data received from Github into your function,
     and append the returned markup to the DOM as a child of .cards
 */
+  const mainDiv = document.querySelector('div.cards')
+
+  axios.get('https://api.github.com/users/mrn720')
+  .then(res => {
+    const myCard = githubCardMaker(res.data)
+    mainDiv.appendChild(myCard)
+  })
+  .catch(err => {err, console.log(err)})
+  
 
 /*
   STEP 5: Now that you have your own card getting added to the DOM, either
@@ -28,7 +92,14 @@
     user, and adding that card to the DOM.
 */
 
-const followersArray = [];
+const followersArray = ['tetondan', 'dustinmyers', 'justsml', 'luishrd', 'bigknell'];
+
+followersArray.forEach((follower) => {axios.get(`https://api.github.com/users/${follower}`)
+.then(res => {
+  const userCard = githubCardMaker(res.data)
+  mainDiv.appendChild(userCard)
+})
+.catch(err => {err, console.log(err)})})
 
 /*
   STEP 3: Create a function that accepts a single object as its only argument.
@@ -58,3 +129,13 @@ const followersArray = [];
     luishrd
     bigknell
 */
+
+axios.get('https://api.github.com/users/mrn720').then(res => axios.get(`${res.data.followers_url}`).then(data1 => {
+  const myFollowerArray = data1.data
+  myFollowerArray.forEach((follower) => {axios.get(`${follower.url}`)
+  .then(res => {
+    const userCard = githubCardMaker(res.data)
+    mainDiv.appendChild(userCard)
+  })
+  .catch(err => {err, console.log(err)})})
+}))
